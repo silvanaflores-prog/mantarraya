@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-    <title>Mantarraya - Seño Sil</title>
+    <title>Libro Océano - Seño Sil</title>
     <style>
+      /* Pantalla Violeta de la Seño Sil */
       #loading-overlay {
         position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
         background-color: #9C27B0; display: flex; flex-direction: column;
@@ -23,6 +24,7 @@
     </style>
   </head>
   <body style="margin: 0; overflow: hidden;">
+    
     <div id="loading-overlay">
       <div class="loader"></div>
       <p class="firma">Seño Sil</p>
@@ -30,42 +32,50 @@
 
     <a-scene 
       mindar-image="imageTargetSrc: ./mantarraya.mind; autoStart: true; uiLoading: no; uiScanning: yes;" 
+      embedded
       color-space="sRGB" 
       renderer="colorManagement: true, exposure: 1.5" 
       vr-mode-ui="enabled: false" 
       device-orientation-permission-ui="enabled: false">
       
       <a-assets>
-        <a-asset-item id="modelo" src="./mantarraya.glb"></a-asset-item>
-        <audio id="sonido" src="burbujas.mp3" preload="auto"></audio>
+        <a-asset-item id="modeloMantarraya" src="./mantarraya.glb"></a-asset-item>
+        <audio id="sonidoBurbujas" src="burbujas.mp3" preload="auto"></audio>
       </a-assets>
 
-      <a-camera position="0 0 0" look-controls="enabled: false" wasd-controls-enabled="false"></a-camera>
+      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-      <a-entity id="target" mindar-image-target="targetIndex: 0">
-        <a-gltf-model src="#modelo" position="0 0 0.1" scale="0.4 0.4 0.4" rotation="0 0 0"></a-gltf-model>
-        <a-entity sound="src: #sonido; poolSize: 1"></a-entity>
+      <a-entity id="targetMantarraya" mindar-image-target="targetIndex: 0">
+        <a-gltf-model 
+          src="#modeloMantarraya" 
+          position="0 0 0.1" 
+          scale="0.4 0.4 0.4" 
+          rotation="0 0 0">
+        </a-gltf-model>
+        <a-entity sound="src: #sonidoBurbujas; poolSize: 1"></a-entity>
       </a-entity>
     </a-scene>
 
     <script>
       const sceneEl = document.querySelector('a-scene');
       const overlay = document.getElementById('loading-overlay');
-      const targetEl = document.querySelector('#target');
-      const audioEl = document.querySelector('[sound]');
+      const target = document.querySelector('#targetMantarraya');
+      const audio = document.querySelector('[sound]');
 
+      // Cuando la cámara ya está "viva" y lista para leer el dibujo
       sceneEl.addEventListener('realityready', () => {
-        overlay.classList.add('hidden');
+        // Un pequeño delay de 1 segundo para que la transición no sea brusca
+        setTimeout(() => {
+          overlay.classList.add('hidden');
+        }, 1000);
       });
 
-      // Si después de 8 segundos no cargó el .mind, avisamos por consola
-      setTimeout(() => { overlay.classList.add('hidden'); }, 8000);
-
-      targetEl.addEventListener("targetFound", () => {
-        if(audioEl.components.sound) audioEl.components.sound.playSound();
+      // Lógica del sonido de burbujas
+      target.addEventListener("targetFound", () => {
+        if(audio.components.sound) audio.components.sound.playSound();
       });
-      targetEl.addEventListener("targetLost", () => {
-        if(audioEl.components.sound) audioEl.components.sound.stopSound();
+      target.addEventListener("targetLost", () => {
+        if(audio.components.sound) audio.components.sound.stopSound();
       });
     </script>
   </body>
