@@ -14,21 +14,19 @@
         justify-content: center; align-items: center; z-index: 9999;
       }
       #loading-overlay.hidden { display: none; }
-      .firma { color: white; font-family: sans-serif; font-size: 2.2rem; font-weight: bold; }
+      .firma { color: white; font-family: sans-serif; font-size: 2.2rem; font-weight: bold; margin: 0; }
     </style>
   </head>
   <body>
     <div id="loading-overlay">
       <p class="firma">Seño Sil</p>
-      <p style="color: white; font-family: sans-serif;">¡Buscando a la Mantarraya!</p>
+      <p style="color: white; font-family: sans-serif; margin-top: 10px;">¡Buscando a la Mantarraya!</p>
     </div>
 
     <a-scene 
-      mindar-image="imageTargetSrc: ./mantarraya.mind; autoStart: true; uiLoading: no; uiScanning: yes; filterMinCF:0.0001; filterBeta: 0.001;" 
-      color-space="sRGB" 
-      renderer="colorManagement: true, exposure: 1.5" 
-      vr-mode-ui="enabled: false" 
-      device-orientation-permission-ui="enabled: false">
+      mindar-image="imageTargetSrc: ./mantarraya.mind; autoStart: true; uiLoading: no; uiScanning: yes;" 
+      color-space="sRGB" renderer="colorManagement: true, exposure: 1.5" 
+      vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
       
       <a-assets>
         <a-asset-item id="modelo" src="./mantarraya.glb"></a-asset-item>
@@ -38,12 +36,7 @@
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
       <a-entity id="target" mindar-image-target="targetIndex: 0">
-        <a-gltf-model 
-          src="#modelo" 
-          position="0 0 0.1" 
-          scale="0.4 0.4 0.4" 
-          rotation="0 0 0">
-        </a-gltf-model>
+        <a-gltf-model src="#modelo" position="0 0 0.1" scale="0.5 0.5 0.5" rotation="0 0 0"></a-gltf-model>
         <a-entity id="entidadSonido" sound="src: #clipBurbujas; poolSize: 1"></a-entity>
       </a-entity>
     </a-scene>
@@ -55,7 +48,7 @@
       const sonido = document.querySelector('#entidadSonido');
 
       sceneEl.addEventListener('realityready', () => {
-        overlay.classList.add('hidden');
+        setTimeout(() => { overlay.classList.add('hidden'); }, 1000);
       });
 
       targetEl.addEventListener("targetFound", () => {
