@@ -6,7 +6,6 @@
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
     <title>Mantarraya - Seño Sil</title>
-
     <style>
       #loading-overlay {
         position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
@@ -24,9 +23,7 @@
       .firma { color: white; font-family: sans-serif; font-size: 2.2rem; font-weight: bold; margin: 0; }
     </style>
   </head>
-
   <body style="margin: 0; overflow: hidden;">
-    
     <div id="loading-overlay">
       <div class="loader"></div>
       <p class="firma">Seño Sil</p>
@@ -35,7 +32,7 @@
 
     <a-scene 
       mindar-image="imageTargetSrc: ./mantarraya.mind; autoStart: true; uiLoading: no; uiScanning: yes;" 
-      color-space="sRGB" renderer="colorManagement: true, exposure: 1.5" 
+      embedded color-space="sRGB" renderer="colorManagement: true, exposure: 1.5" 
       vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
       
       <a-assets>
@@ -49,10 +46,9 @@
         <a-gltf-model 
           src="#modeloMantarraya" 
           position="0 0 0.1" 
-          scale="0.2 0.2 0.2" 
+          scale="0.3 0.3 0.3" 
           rotation="0 0 0">
         </a-gltf-model>
-        
         <a-entity sound="src: #sonidoBurbujas; poolSize: 1"></a-entity>
       </a-entity>
     </a-scene>
@@ -65,14 +61,14 @@
       document.querySelector('a-scene').addEventListener('realityready', () => {
         overlay.classList.add('hidden');
       });
-      setTimeout(() => { overlay.classList.add('hidden'); }, 5000);
+      // Tiempo de seguridad para quitar el violeta
+      setTimeout(() => { overlay.classList.add('hidden'); }, 6000);
 
-      targetEntity.addEventListener("targetFound", event => {
-        sonido.components.sound.playSound();
+      targetEntity.addEventListener("targetFound", () => {
+        if(sonido.components.sound) sonido.components.sound.playSound();
       });
-
-      targetEntity.addEventListener("targetLost", event => {
-        sonido.components.sound.stopSound();
+      targetEntity.addEventListener("targetLost", () => {
+        if(sonido.components.sound) sonido.components.sound.stopSound();
       });
     </script>
   </body>
