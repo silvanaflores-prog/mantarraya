@@ -30,11 +30,11 @@
     <div id="loading-overlay">
       <div class="loader"></div>
       <p class="firma">Seño Sil</p>
-      <p style="color: white; font-family: sans-serif; margin-top: 10px;">¡Preparando la magia!</p>
+      <p style="color: white; font-family: sans-serif; margin-top: 10px;">¡Buscando la Mantarraya!</p>
     </div>
 
     <a-scene 
-      mindar-image="imageTargetSrc: ./mantarraya.mind; autoStart: true; uiLoading: no; uiScanning: yes;" 
+      mindar-image="imageTargetSrc: ./mantarraya.mind; autoStart: true; uiLoading: no; uiScanning: yes; filterMinCF:0.0001; filterBeta: 0.001;" 
       color-space="sRGB" renderer="colorManagement: true, exposure: 1.5" 
       vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
       
@@ -48,31 +48,28 @@
       <a-entity id="targetMantarraya" mindar-image-target="targetIndex: 0">
         <a-gltf-model 
           src="#modeloMantarraya" 
-          position="0 0 0.1" 
-          scale="0.4 0.4 0.4" 
+          position="0 0 0.2" 
+          scale="0.5 0.5 0.5" 
           rotation="0 0 0">
         </a-gltf-model>
-        
         <a-entity sound="src: #sonidoBurbujas; poolSize: 1"></a-entity>
       </a-entity>
     </a-scene>
 
     <script>
       const overlay = document.getElementById('loading-overlay');
-      const targetEntity = document.querySelector('#targetMantarraya');
+      const target = document.querySelector('#targetMantarraya');
       const sonido = document.querySelector('[sound]');
 
       document.querySelector('a-scene').addEventListener('realityready', () => {
         overlay.classList.add('hidden');
       });
-
       setTimeout(() => { overlay.classList.add('hidden'); }, 5000);
 
-      targetEntity.addEventListener("targetFound", event => {
+      target.addEventListener("targetFound", () => {
         if(sonido.components.sound) sonido.components.sound.playSound();
       });
-
-      targetEntity.addEventListener("targetLost", event => {
+      target.addEventListener("targetLost", () => {
         if(sonido.components.sound) sonido.components.sound.stopSound();
       });
     </script>
