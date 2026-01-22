@@ -6,71 +6,66 @@
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
     <title>Mantarraya - Seño Sil</title>
-
     <style>
       #loading-overlay {
         position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
         background-color: #9C27B0; display: flex; flex-direction: column;
         justify-content: center; align-items: center; z-index: 9999;
-        transition: opacity 1s ease-out;
       }
-      #loading-overlay.hidden { opacity: 0; pointer-events: none; }
+      #loading-overlay.hidden { display: none; }
       .loader {
         border: 5px solid rgba(255,255,255,0.3); border-top: 5px solid #ffffff;
         border-radius: 50%; width: 50px; height: 50px;
         animation: spin 1s linear infinite; margin-bottom: 20px;
       }
       @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-      .firma { color: white; font-family: sans-serif; font-size: 2.2rem; font-weight: bold; margin: 0; }
+      .firma { color: white; font-family: sans-serif; font-size: 2.2rem; font-weight: bold; }
     </style>
   </head>
-
   <body style="margin: 0; overflow: hidden;">
-    
     <div id="loading-overlay">
       <div class="loader"></div>
       <p class="firma">Seño Sil</p>
-      <p style="color: white; font-family: sans-serif; margin-top: 10px;">¡Buscando la Mantarraya!</p>
     </div>
 
     <a-scene 
-      mindar-image="imageTargetSrc: ./mantarraya.mind; autoStart: true; uiLoading: no; uiScanning: yes; filterMinCF:0.0001; filterBeta: 0.001;" 
-      color-space="sRGB" renderer="colorManagement: true, exposure: 1.5" 
-      vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+      mindar-image="imageTargetSrc: ./mantarraya.mind; autoStart: true; uiLoading: no; uiScanning: yes;" 
+      color-space="sRGB" 
+      renderer="colorManagement: true, exposure: 1.5" 
+      vr-mode-ui="enabled: false" 
+      device-orientation-permission-ui="enabled: false">
       
       <a-assets>
-        <a-asset-item id="modeloMantarraya" src="./mantarraya.glb"></a-asset-item>
-        <audio id="sonidoBurbujas" src="burbujas.mp3" preload="auto"></audio>
+        <a-asset-item id="modelo" src="./mantarraya.glb"></a-asset-item>
+        <audio id="sonido" src="burbujas.mp3" preload="auto"></audio>
       </a-assets>
 
-      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+      <a-camera position="0 0 0" look-controls="enabled: false" wasd-controls-enabled="false"></a-camera>
 
-      <a-entity id="targetMantarraya" mindar-image-target="targetIndex: 0">
-        <a-gltf-model 
-          src="#modeloMantarraya" 
-          position="0 0 0.2" 
-          scale="0.5 0.5 0.5" 
-          rotation="0 0 0">
-        </a-gltf-model>
-        <a-entity sound="src: #sonidoBurbujas; poolSize: 1"></a-entity>
+      <a-entity id="target" mindar-image-target="targetIndex: 0">
+        <a-gltf-model src="#modelo" position="0 0 0.1" scale="0.4 0.4 0.4" rotation="0 0 0"></a-gltf-model>
+        <a-entity sound="src: #sonido; poolSize: 1"></a-entity>
       </a-entity>
     </a-scene>
 
     <script>
+      const sceneEl = document.querySelector('a-scene');
       const overlay = document.getElementById('loading-overlay');
-      const target = document.querySelector('#targetMantarraya');
-      const sonido = document.querySelector('[sound]');
+      const targetEl = document.querySelector('#target');
+      const audioEl = document.querySelector('[sound]');
 
-      document.querySelector('a-scene').addEventListener('realityready', () => {
+      sceneEl.addEventListener('realityready', () => {
         overlay.classList.add('hidden');
       });
-      setTimeout(() => { overlay.classList.add('hidden'); }, 5000);
 
-      target.addEventListener("targetFound", () => {
-        if(sonido.components.sound) sonido.components.sound.playSound();
+      // Si después de 8 segundos no cargó el .mind, avisamos por consola
+      setTimeout(() => { overlay.classList.add('hidden'); }, 8000);
+
+      targetEl.addEventListener("targetFound", () => {
+        if(audioEl.components.sound) audioEl.components.sound.playSound();
       });
-      target.addEventListener("targetLost", () => {
-        if(sonido.components.sound) sonido.components.sound.stopSound();
+      targetEl.addEventListener("targetLost", () => {
+        if(audioEl.components.sound) audioEl.components.sound.stopSound();
       });
     </script>
   </body>
