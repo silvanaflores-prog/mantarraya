@@ -13,35 +13,37 @@
         justify-content: center; align-items: center; z-index: 9999;
       }
       #loading-overlay.hidden { display: none; }
-      .loader {
-        border: 5px solid rgba(255,255,255,0.3); border-top: 5px solid #ffffff;
-        border-radius: 50%; width: 50px; height: 50px;
-        animation: spin 1s linear infinite; margin-bottom: 20px;
-      }
-      @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
       .firma { color: white; font-family: sans-serif; font-size: 2.2rem; font-weight: bold; }
     </style>
   </head>
   <body style="margin: 0; overflow: hidden;">
     <div id="loading-overlay">
-      <div class="loader"></div>
       <p class="firma">Seño Sil</p>
+      <p style="color: white;">¡Buscando a la Mantarraya!</p>
     </div>
 
     <a-scene 
       mindar-image="imageTargetSrc: ./mantarraya.mind; autoStart: true; uiLoading: no; uiScanning: yes;" 
-      embedded color-space="sRGB" renderer="colorManagement: true, exposure: 1.5" 
+      embedded color-space="sRGB" renderer="colorManagement: true, exposure: 2.0" 
       vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
       
       <a-assets>
-        <a-asset-item id="modelo" src="./mantarraya.glb"></a-asset-item>
+        <a-asset-item id="modelo" src="./mantarraya.glb?v=2"></a-asset-item>
         <audio id="clipBurbujas" src="burbujas.mp3" preload="auto"></audio>
       </a-assets>
+
+      <a-light type="ambient" intensity="1"></a-light>
+      <a-light type="directional" position="0 10 0" intensity="1"></a-light>
 
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
       <a-entity id="target" mindar-image-target="targetIndex: 0">
-        <a-gltf-model src="#modelo" position="0 0 0.1" scale="0.05 0.05 0.05" rotation="0 0 0"></a-gltf-model>
+        <a-gltf-model 
+          src="#modelo" 
+          position="0 0 0.1" 
+          scale="0.1 0.1 0.1" 
+          rotation="0 0 0">
+        </a-gltf-model>
         <a-entity id="entidadSonido" sound="src: #clipBurbujas; poolSize: 1"></a-entity>
       </a-entity>
     </a-scene>
@@ -53,17 +55,19 @@
       const sonido = document.querySelector('#entidadSonido');
 
       sceneEl.addEventListener('realityready', () => {
-        setTimeout(() => { overlay.classList.add('hidden'); }, 1000);
+        overlay.classList.add('hidden');
       });
 
       targetEl.addEventListener("targetFound", () => {
         if(sonido.components.sound) sonido.components.sound.playSound();
       });
+
       targetEl.addEventListener("targetLost", () => {
         if(sonido.components.sound) sonido.components.sound.stopSound();
       });
 
-      setTimeout(() => { overlay.classList.add('hidden'); }, 8000);
+      // Si en 10 segundos no cargó, quitamos el violeta igual
+      setTimeout(() => { overlay.classList.add('hidden'); }, 10000);
     </script>
   </body>
 </html>
