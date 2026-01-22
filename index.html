@@ -2,41 +2,74 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-    <title>Prueba de Mantarraya - Seño Sil</title>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    <title>Mantarraya - Seño Sil</title>
     <style>
-      body { margin: 0; overflow: hidden; background-color: #001a33; }
-      #instrucciones {
-        position: fixed; bottom: 20px; width: 100%; text-align: center;
-        color: white; font-family: sans-serif; z-index: 10;
-        text-shadow: 1px 1px 2px black;
+      html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; }
+      #loading-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background-color: #9C27B0; display: flex; flex-direction: column;
+        justify-content: center; align-items: center; z-index: 9999;
       }
+      #loading-overlay.hidden { display: none; }
+      .firma { color: white; font-family: sans-serif; font-size: 2.2rem; font-weight: bold; }
     </style>
   </head>
   <body>
-    <div id="instrucciones">Si ves la mantarraya, ¡el archivo GLB está perfecto!</div>
+    <div id="loading-overlay">
+      <p class="firma">Seño Sil</p>
+      <p style="color: white;">¡Buscando a la Mantarraya!</p>
+    </div>
 
-    <a-scene embedded vr-mode-ui="enabled: false">
+    <a-scene 
+      mindar-image="imageTargetSrc: ./mantarraya.mind; autoStart: true; uiLoading: no; uiScanning: yes;" 
+      color-space="sRGB" 
+      renderer="colorManagement: true, exposure: 1.5; logarithmicDepthBuffer: true;" 
+      vr-mode-ui="enabled: false" 
+      device-orientation-permission-ui="enabled: false">
       
       <a-assets>
-        <a-asset-item id="modelo" src="./mantarraya.glb"></a-asset-item>
+        <a-asset-item id="modelo" src="./mantarraya.glb?v=99"></a-asset-item>
+        <audio id="clipBurbujas" src="burbujas.mp3" preload="auto"></audio>
       </a-assets>
 
-      <a-light type="ambient" intensity="1.2"></a-light>
+      <a-light type="ambient" intensity="1.5"></a-light>
       <a-light type="directional" position="1 1 1" intensity="1"></a-light>
 
-      <a-entity 
-        gltf-model="#modelo" 
-        position="0 1 -3" 
-        scale="1.5 1.5 1.5"
-        animation="property: rotation; to: 0 360 0; loop: true; dur: 15000">
+      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+      <a-entity id="target" mindar-image-target="targetIndex: 0">
+        <a-gltf-model 
+          src="#modelo" 
+          position="0 0 0.1" 
+          scale="0.5 0.5 0.5" 
+          rotation="0 0 0">
+        </a-gltf-model>
+        <a-entity id="entidadSonido" sound="src: #clipBurbujas; poolSize: 1"></a-entity>
       </a-entity>
-
-      <a-sky color="#003366"></a-sky>
-      
-      <a-camera position="0 1.6 0" look-controls></a-camera>
-
     </a-scene>
+
+    <script>
+      const sceneEl = document.querySelector('a-scene');
+      const overlay = document.getElementById('loading-overlay');
+      const targetEl = document.querySelector('#target');
+      const sonido = document.querySelector('#entidadSonido');
+
+      sceneEl.addEventListener('realityready', () => {
+        overlay.classList.add('hidden');
+      });
+
+      targetEl.addEventListener("targetFound", () => {
+        if(sonido.components.sound) sonido.components.sound.playSound();
+      });
+
+      targetEl.addEventListener("targetLost", () => {
+        if(sonido.components.sound) sonido.components.sound.stopSound();
+      });
+
+      setTimeout(() => { overlay.classList.add('hidden'); }, 8000);
+    </script>
   </body>
 </html>
