@@ -1,69 +1,87 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-    <title>Prueba Cubo - Seño Sil</title>
+    <title>Océano Mágico - Seño Sil</title>
     <style>
-      html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; }
-      #loading-overlay {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background-color: #9C27B0; display: flex; flex-direction: column;
-        justify-content: center; align-items: center; z-index: 9999;
-      }
-      #loading-overlay.hidden { display: none; }
-      .firma { color: white; font-family: sans-serif; font-size: 2.2rem; font-weight: bold; }
+        html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; }
+        #loading-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #9C27B0; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 9999;
+        }
+        #loading-overlay.hidden { display: none; }
+        .firma { color: white; font-family: sans-serif; font-size: 2.2rem; font-weight: bold; margin-bottom: 10px; }
+        .instruccion { color: white; font-family: sans-serif; font-size: 1rem; opacity: 0.8; }
     </style>
-  </head>
-  <body>
+</head>
+<body>
+
     <div id="loading-overlay">
-      <p class="firma">Seño Sil</p>
-      <p style="color: white;">Probando con un Cubo...</p>
+        <p class="firma">Seño Sil</p>
+        <p class="instruccion">Preparando el Océano...</p>
     </div>
 
     <a-scene 
-      mindar-image="imageTargetSrc: ./mantarraya.mind; autoStart: true; uiLoading: no; uiScanning: yes;" 
-      color-space="sRGB" renderer="colorManagement: true, exposure: 1.5" 
-      vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
-      
-      <a-assets>
-        <audio id="clipBurbujas" src="burbujas.mp3" preload="auto"></audio>
-      </a-assets>
-
-      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-
-      <a-entity id="target" mindar-image-target="targetIndex: 0">
-        <a-box 
-          position="0 0 0" 
-          scale="0.3 0.3 0.3" 
-          material="color: red; opacity: 0.8"
-          animation="property: rotation; to: 0 360 0; loop: true; dur: 5000">
-        </a-box>
+        mindar-image="imageTargetSrc: ./mantarraya.mind; autoStart: true; uiLoading: no; uiScanning: yes;" 
+        color-space="sRGB" 
+        renderer="colorManagement: true, exposure: 1.8" 
+        vr-mode-ui="enabled: false" 
+        device-orientation-permission-ui="enabled: false">
         
-        <a-entity id="entidadSonido" sound="src: #clipBurbujas; poolSize: 1"></a-entity>
-      </a-entity>
+        <a-assets>
+            <a-asset-item id="modeloMantarraya" src="./mantarraya.glb?v=animacion"></a-asset-item>
+            <audio id="clipBurbujas" src="burbujas.mp3" preload="auto"></audio>
+        </a-assets>
+
+        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+        <a-light type="ambient" intensity="1.5"></a-light>
+        <a-light type="directional" position="0 2 2" intensity="1"></a-light>
+
+        <a-entity id="target" mindar-image-target="targetIndex: 0">
+            
+            <a-gltf-model 
+                id="mantarraya-3d"
+                src="#modeloMantarraya" 
+                position="0 0 0" 
+                scale="0.5 0.5 0.5" 
+                rotation="0 0 0"
+                
+                animation__flotar="property: position; to: 0 0.15 0.1; dir: alternate; dur: 2000; loop: true; easing: easeInOutSine"
+                animation__girar="property: rotation; to: 0 360 0; dur: 15000; loop: true; easing: linear">
+            </a-gltf-model>
+
+            <a-entity id="entidadSonido" sound="src: #clipBurbujas; poolSize: 1"></a-entity>
+        </a-entity>
+
     </a-scene>
 
     <script>
-      const sceneEl = document.querySelector('a-scene');
-      const overlay = document.getElementById('loading-overlay');
-      const targetEl = document.querySelector('#target');
-      const sonido = document.querySelector('#entidadSonido');
+        const sceneEl = document.querySelector('a-scene');
+        const overlay = document.getElementById('loading-overlay');
+        const targetEl = document.querySelector('#target');
+        const sonido = document.querySelector('#entidadSonido');
 
-      sceneEl.addEventListener('realityready', () => {
-        overlay.classList.add('hidden');
-      });
+        // Quitar pantalla de carga cuando la RA esté lista
+        sceneEl.addEventListener('realityready', () => {
+            setTimeout(() => { overlay.classList.add('hidden'); }, 1500);
+        });
 
-      targetEl.addEventListener("targetFound", () => {
-        if(sonido.components.sound) sonido.components.sound.playSound();
-      });
-      targetEl.addEventListener("targetLost", () => {
-        if(sonido.components.sound) sonido.components.sound.stopSound();
-      });
+        // Control de sonido al detectar el dibujo
+        targetEl.addEventListener("targetFound", () => {
+            if(sonido.components.sound) sonido.components.sound.playSound();
+        });
 
-      setTimeout(() => { overlay.classList.add('hidden'); }, 8000);
+        targetEl.addEventListener("targetLost", () => {
+            if(sonido.components.sound) sonido.components.sound.stopSound();
+        });
+
+        // Seguridad por si tarda en cargar
+        setTimeout(() => { overlay.classList.add('hidden'); }, 10000);
     </script>
-  </body>
+</body>
 </html>
